@@ -12,12 +12,11 @@ SERVER2CLIENT_KEYNAME = "server2client"
 CLIENT2SERVER_KEYNAME = "client2server"
 SRC_KEY = 'SRC_STRING'
 REPL_KEY = 'REPL_STRING'
-
 replace_data = {
-    SERVER2CLIENT_KEYNAME: {SRC_KEY: "<YOUR SRC STRING TO REPLACE>",
-                            REPL_KEY: "<YOUR REPLACED NEW STRING>"},
-    CLIENT2SERVER_KEYNAME: {SRC_KEY: "<YOUR SRC STRING TO REPLACE>",
-                            REPL_KEY: "<YOUR REPLACED NEW STRING>"},
+    SERVER2CLIENT_KEYNAME: {SRC_KEY: "",
+                            REPL_KEY: ""},
+    CLIENT2SERVER_KEYNAME: {SRC_KEY: "",
+                            REPL_KEY: ""},
 }
 
 

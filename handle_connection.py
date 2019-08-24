@@ -14,8 +14,7 @@ SRC_KEY = 'SRC_STRING'
 REPL_KEY = 'REPL_STRING'
 replace_data = {
     SERVER2CLIENT_KEYNAME: [
-        ("PATH C:\\Users\\noaml", "PATH \\\\noaml-laptop\\noaml"),
-        ("PATH C:", "PATH \\\\noaml-laptop\\C$"),
+        ("PATH C:\\Users\\<YOUR PATH TO REPLACE>", "PATH \\\\<PATH TO REPLACE TO>"),
     ],
     CLIENT2SERVER_KEYNAME: [{SRC_KEY: "",
                              REPL_KEY: ""}, ],

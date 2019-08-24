@@ -6,25 +6,28 @@ from select import select
 from Queue import Queue
 from config import TIMEOUT_CLIENT_CONNECTION, TIMEOUT_REQ_CONNECTION, \
     EVERYTHING_SERVER_IP, ETP_PORT
-from utils import recvall
+from utils import recvall, vprint
 
 SERVER2CLIENT_KEYNAME = "server2client"
 CLIENT2SERVER_KEYNAME = "client2server"
 SRC_KEY = 'SRC_STRING'
 REPL_KEY = 'REPL_STRING'
 replace_data = {
-    SERVER2CLIENT_KEYNAME: {SRC_KEY: "",
-                            REPL_KEY: ""},
-    CLIENT2SERVER_KEYNAME: {SRC_KEY: "",
-                            REPL_KEY: ""},
+    SERVER2CLIENT_KEYNAME: [
+        ("PATH C:\\Users\\noaml", "PATH \\\\noaml-laptop\\noaml"),
+        ("PATH C:", "PATH \\\\noaml-laptop\\C$"),
+    ],
+    CLIENT2SERVER_KEYNAME: [{SRC_KEY: "",
+                             REPL_KEY: ""}, ],
 }
 
 
 def get_manip_data(dst_conn_keyname, data):
     assert dst_conn_keyname in replace_data, \
         "Invalid dst_conn_keyname. must be: " + str(replace_data.keys())
-    new_data = data.replace(replace_data[dst_conn_keyname][SRC_KEY],
-                            replace_data[dst_conn_keyname][REPL_KEY])
+    new_data = data
+    for src_str, repl_str in replace_data[dst_conn_keyname]:
+        new_data = new_data.replace(src_str, repl_str)
     return new_data
 
 
@@ -63,9 +66,15 @@ class HandleConnectionThread(Thread):
         try:
             self.server_conn.connect((EVERYTHING_SERVER_IP, ETP_PORT))
         except SOCKET_TIMEOUT:
-            print("[!] No Connection with ETP-Server at " +
+            print("[!] [SOCKET_TIMEOUT] No Connection with ETP-Server at " +
                   str((EVERYTHING_SERVER_IP, ETP_PORT)),
-                  file=sys.err)
+                  file=sys.stderr)
+            self.close_connection()
+            return
+        except Exception as e:
+            print("[!] No Connection with ETP-Server at %s. Error: %s" %
+                  (str((EVERYTHING_SERVER_IP, ETP_PORT)), str(e)),
+                  file=sys.stderr)
             self.close_connection()
             return
 
@@ -87,9 +96,13 @@ class HandleConnectionThread(Thread):
                     self.stop()
                     break
                 # Manipulating the Data:
-                new_data = self.get_manipulated_data(sck, data)
+                new_data = self.get_manipulated_data(dst_sck, data)
                 message_queues[dst_sck].put(new_data)
             for sck in writable:
                 if not message_queues[sck].empty():
                     next_msg = message_queues[sck].get_nowait()
+                    prefix = "[server2client]"
+                    if sck is self.server_conn:
+                        prefix = "[client2server]"
+                    vprint(prefix, next_msg)
                     sck.send(next_msg)
